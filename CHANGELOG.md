@@ -1,3 +1,9 @@
+## [1.5.1](https://github.com/Grwnd-AI/pi-governance/compare/v1.5.0...v1.5.1) (2026-03-01)
+
+### Bug Fixes
+
+- handle missing governance-rules.yaml and replace deprecated lodash.isequal ([4d66754](https://github.com/Grwnd-AI/pi-governance/commit/4d66754a2ff03405f21925e8a3f7d216676faa2d))
+
 # [1.5.0](https://github.com/Grwnd-AI/pi-governance/compare/v1.4.2...v1.5.0) (2026-03-01)
 
 ### Features
