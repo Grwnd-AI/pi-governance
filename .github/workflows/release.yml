@@ -33,7 +33,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm -r build
+        run: pnpm -r --include-workspace-root build
 
       - name: Verify dist
         run: |

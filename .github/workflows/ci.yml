@@ -38,7 +38,7 @@ jobs:
         run: pnpm format:check
 
       - name: Typecheck
-        run: pnpm -r typecheck
+        run: pnpm -r --include-workspace-root typecheck
 
       - name: Test
         run: pnpm test
@@ -48,7 +48,7 @@ jobs:
         run: pnpm test:coverage
 
       - name: Build
-        run: pnpm -r build
+        run: pnpm -r --include-workspace-root build
 
       - name: Verify dist output
         run: |
