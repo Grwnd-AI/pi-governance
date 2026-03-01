@@ -1,3 +1,9 @@
+# [1.5.0](https://github.com/Grwnd-AI/pi-governance/compare/v1.4.2...v1.5.0) (2026-03-01)
+
+### Features
+
+- add DLP module for secret/token and PII detection ([8ce7a1b](https://github.com/Grwnd-AI/pi-governance/commit/8ce7a1b9715f9231e5f2134bcf7873859aa1e586))
+
 ## [1.4.2](https://github.com/Grwnd-AI/pi-governance/compare/v1.4.1...v1.4.2) (2026-03-01)
 
 ### Bug Fixes
