@@ -1,3 +1,9 @@
+# [1.2.0](https://github.com/Grwnd-AI/pi-governance/compare/v1.1.0...v1.2.0) (2026-03-01)
+
+### Features
+
+- add social card for OG/Twitter previews ([1df9450](https://github.com/Grwnd-AI/pi-governance/commit/1df9450eb7173ac4e4b4c8d606d5bb66f3eb2e8c))
+
 # [1.1.0](https://github.com/Grwnd-AI/pi-governance/compare/v1.0.0...v1.1.0) (2026-03-01)
 
 ### Features
