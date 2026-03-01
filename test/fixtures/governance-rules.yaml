@@ -1,0 +1,59 @@
+# governance-rules.yaml — role definitions for YAML policy engine
+
+roles:
+  analyst:
+    allowed_tools: [read]
+    blocked_tools: [write, edit, bash]
+    prompt_template: analyst
+    execution_mode: supervised
+    human_approval:
+      required_for: [all]
+    token_budget_daily: 100000
+    allowed_paths:
+      - '{{project_path}}/**'
+    blocked_paths:
+      - '**/secrets/**'
+      - '**/.env*'
+
+  project_lead:
+    allowed_tools: [read, write, edit, bash]
+    blocked_tools: []
+    prompt_template: project-lead
+    execution_mode: supervised
+    human_approval:
+      required_for: [bash, write]
+      auto_approve: [read, edit]
+    token_budget_daily: 500000
+    allowed_paths:
+      - '{{project_path}}/**'
+    blocked_paths:
+      - '**/secrets/**'
+      - '**/.env*'
+    bash_overrides:
+      additional_blocked:
+        - 'sudo'
+        - 'ssh'
+        - "curl.*\\|.*sh"
+
+  admin:
+    allowed_tools: [all]
+    blocked_tools: []
+    prompt_template: admin
+    execution_mode: autonomous
+    human_approval:
+      required_for: []
+    token_budget_daily: -1 # unlimited
+    allowed_paths: ['**']
+    blocked_paths: []
+
+  auditor:
+    allowed_tools: [read]
+    blocked_tools: [write, edit, bash]
+    prompt_template: analyst
+    execution_mode: dry_run
+    human_approval:
+      required_for: [all]
+    token_budget_daily: 50000
+    allowed_paths: ['**']
+    blocked_paths:
+      - '**/secrets/**'
