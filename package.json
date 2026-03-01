@@ -57,6 +57,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "prepare": "husky"
   },
   "peerDependencies": {
@@ -90,6 +93,7 @@
     "tsup": "^8.0.0",
     "typescript": "^5.5.0",
     "typescript-eslint": "^8.0.0",
+    "vitepress": "^1.6.0",
     "vitest": "^3.0.0"
   },
   "lint-staged": {
