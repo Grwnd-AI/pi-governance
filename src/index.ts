@@ -75,3 +75,6 @@ export {
 } from './lib/hitl/approval.js';
 export { CliApprover } from './lib/hitl/cli-approver.js';
 export { WebhookApprover } from './lib/hitl/webhook-approver.js';
+
+// Wizard
+export { startWizardServer, type WizardServerOptions } from './lib/wizard/index.js';

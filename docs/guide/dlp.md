@@ -6,6 +6,10 @@ pi-governance's DLP module prevents sensitive data — API keys, tokens, PII —
 
 When an agent reads a `.env` file or a user pastes credentials into a bash command, those secrets flow through the tool pipeline unfiltered. DLP intercepts these flows at two points:
 
+::: tip Interactive Setup
+Use `/governance init` to configure DLP through a browser-based wizard — no YAML editing required.
+:::
+
 - **Tool call inputs** (pre-execution): scans text before the tool runs. Can **block** or **mask** sensitive data.
 - **Tool result outputs** (post-execution): scans output before it reaches the LLM. Can **mask** sensitive data in-place.
 

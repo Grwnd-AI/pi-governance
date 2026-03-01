@@ -32,6 +32,8 @@ export default defineConfig({
           text: 'Getting Started',
           items: [
             { text: 'Quick Start', link: '/guide/quickstart' },
+            { text: 'Why Governance?', link: '/guide/why' },
+            { text: 'Common Scenarios', link: '/guide/scenarios' },
             { text: 'Team Deployment', link: '/guide/team-deployment' },
             { text: 'Architecture', link: '/guide/architecture' },
             { text: 'Worked Examples', link: '/guide/examples' },

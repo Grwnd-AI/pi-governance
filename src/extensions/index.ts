@@ -712,8 +712,38 @@ const piGovernance: ExtensionFactory = (pi) => {
           ...[...summary.entries()].map(([k, v]) => `  ${k}: ${v}`),
         ];
         ctx.ui.notify(lines.join('\n'), 'info');
+      } else if (subcommand === 'init') {
+        const { startWizardServer } = await import('../lib/wizard/index.js');
+
+        ctx.ui.notify('Starting governance configuration wizard...', 'info');
+
+        const { port, close } = await startWizardServer({
+          workingDirectory: ctx.workingDirectory,
+          existingConfig: config,
+          onComplete: (files) => {
+            const names = files.map((f) => f.path).join(', ');
+            ctx.ui.notify(`Configuration saved: ${names}`, 'info');
+            close();
+          },
+          onError: (err) => {
+            ctx.ui.notify(`Wizard error: ${err.message}`, 'error');
+            close();
+          },
+        });
+
+        const url = `http://localhost:${port}`;
+        const { exec } = await import('node:child_process');
+        const openCmd =
+          process.platform === 'darwin'
+            ? 'open'
+            : process.platform === 'win32'
+              ? 'start'
+              : 'xdg-open';
+        exec(`${openCmd} ${url}`);
+
+        ctx.ui.notify(`Wizard running at ${url}`, 'info');
       } else {
-        ctx.ui.notify('Usage: /governance status', 'info');
+        ctx.ui.notify('Usage: /governance status | init', 'info');
       }
     },
   });

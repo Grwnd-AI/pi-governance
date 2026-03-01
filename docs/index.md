@@ -3,42 +3,30 @@ layout: home
 
 hero:
   name: pi-governance
-  text: Governance for AI Coding Agents
-  tagline: Role-based access control, bash classification, audit logging, and human-in-the-loop — as a drop-in Pi extension.
+  text: Control Your Coding Agent
+  tagline: 'Your coding agent has access to your terminal, filesystem, and secrets. Control what it can do.'
   image:
     src: /logo.png
     alt: pi-governance
   actions:
     - theme: brand
-      text: Quick Start
+      text: Get Started
       link: /guide/quickstart
     - theme: alt
-      text: View on GitHub
-      link: https://github.com/Grwnd-AI/pi-governance
+      text: Why Governance?
+      link: /guide/why
 
 features:
-  - icon: "\U0001F6E1\uFE0F"
-    title: Role-Based Access Control
-    details: Define roles (analyst, project_lead, admin) with per-tool permissions, path scoping, and org-unit boundaries.
-  - icon: "\U0001F6AB"
-    title: Bash Command Classification
-    details: 60+ regex patterns auto-classify commands as safe, dangerous, or needs-review. Dangerous commands are blocked before execution.
-  - icon: "\U0001F4DD"
-    title: Audit Logging
-    details: Every governance decision is logged as structured JSON. Ship to JSONL files, webhooks, or Postgres.
-  - icon: "\u2705"
-    title: Human-in-the-Loop
-    details: Require approval for sensitive operations. CLI prompts or webhook-based approval flows with configurable timeouts.
-  - icon: "\U0001F4B0"
-    title: Token Budget Enforcement
-    details: Set per-role tool invocation limits. Sessions are automatically capped when the budget is exhausted.
-  - icon: "\U0001F504"
-    title: Config Hot-Reload
-    details: Edit your governance YAML and see changes applied instantly — no session restart needed.
-  - icon: "\U0001F4C4"
-    title: Prompt-Level Policy
-    details: Role-scoped system prompt templates constrain agent behavior at the model level — not just tool gating.
-  - icon: "\u2699\uFE0F"
-    title: Zero-Config Start
-    details: Install and go. Sensible defaults block dangerous bash, enable supervised mode, and log to JSONL out of the box.
+  - title: Agents Run Any Bash Command
+    details: 'Without controls, your agent can execute rm -rf, curl to external servers, or install malicious packages. pi-governance classifies every command and blocks dangerous ones automatically.'
+  - title: Agents Read Your Files
+    details: 'Your .env files, API keys, and private keys flow through tool calls to LLM providers. DLP scanning blocks secrets on input and masks PII in output — before they leave your machine.'
+  - title: No Audit Trail
+    details: "Who ran what, when, and why? Without logging, you can't answer. pi-governance logs every tool call as structured JSON with user, role, decision, and reason."
+  - title: Role-Based Controls
+    details: 'Define who can do what. Analysts get read-only access. Project leads need approval for writes. Admins run autonomously. Each role has scoped tools, paths, and budgets.'
+  - title: Automatic DLP
+    details: '15+ secret patterns and 5+ PII patterns detected out of the box. Block API keys in tool inputs, mask credit cards in outputs. Add custom patterns for your organization.'
+  - title: Zero-Config Start
+    details: "Install and go. One command gives you bash blocking, DLP, supervised mode, and audit logging. Customize when you're ready with YAML or the interactive wizard."
 ---
