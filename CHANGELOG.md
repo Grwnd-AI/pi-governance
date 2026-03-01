@@ -1,3 +1,9 @@
+# [1.7.0](https://github.com/Grwnd-AI/pi-governance/compare/v1.6.0...v1.7.0) (2026-03-01)
+
+### Features
+
+- add /governance init wizard and revamp documentation ([0fed825](https://github.com/Grwnd-AI/pi-governance/commit/0fed825017e9e1eded138f6ca780c2e33e02ddf1))
+
 # [1.6.0](https://github.com/Grwnd-AI/pi-governance/compare/v1.5.1...v1.6.0) (2026-03-01)
 
 ### Features
