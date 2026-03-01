@@ -22,13 +22,19 @@ features:
     details: Define roles (analyst, project_lead, admin) with per-tool permissions, path scoping, and org-unit boundaries.
   - icon: "\U0001F6AB"
     title: Bash Command Classification
-    details: 30+ regex patterns auto-classify commands as safe, dangerous, or needs-review. Dangerous commands are blocked before execution.
+    details: 60+ regex patterns auto-classify commands as safe, dangerous, or needs-review. Dangerous commands are blocked before execution.
   - icon: "\U0001F4DD"
     title: Audit Logging
     details: Every governance decision is logged as structured JSON. Ship to JSONL files, webhooks, or Postgres.
   - icon: "\u2705"
     title: Human-in-the-Loop
     details: Require approval for sensitive operations. CLI prompts or webhook-based approval flows with configurable timeouts.
+  - icon: "\U0001F4B0"
+    title: Token Budget Enforcement
+    details: Set per-role tool invocation limits. Sessions are automatically capped when the budget is exhausted.
+  - icon: "\U0001F504"
+    title: Config Hot-Reload
+    details: Edit your governance YAML and see changes applied instantly — no session restart needed.
   - icon: "\U0001F4C4"
     title: Prompt-Level Policy
     details: Role-scoped system prompt templates constrain agent behavior at the model level — not just tool gating.

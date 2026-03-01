@@ -33,6 +33,8 @@ export default defineConfig({
           items: [
             { text: 'Quick Start', link: '/guide/quickstart' },
             { text: 'Team Deployment', link: '/guide/team-deployment' },
+            { text: 'Architecture', link: '/guide/architecture' },
+            { text: 'Worked Examples', link: '/guide/examples' },
           ],
         },
         {
@@ -48,6 +50,7 @@ export default defineConfig({
           items: [
             { text: 'Human-in-the-Loop', link: '/guide/hitl' },
             { text: 'Audit Logging', link: '/guide/audit' },
+            { text: 'OpenClaw', link: '/guide/openclaw' },
           ],
         },
       ],
