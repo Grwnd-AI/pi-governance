@@ -1,3 +1,9 @@
+# [1.8.0](https://github.com/Grwnd-AI/pi-governance/compare/v1.7.0...v1.8.0) (2026-03-01)
+
+### Features
+
+- add install commands section to docs landing page ([35b1f3d](https://github.com/Grwnd-AI/pi-governance/commit/35b1f3dee06344ac2a14c3efbe08d9e355c29860))
+
 # [1.7.0](https://github.com/Grwnd-AI/pi-governance/compare/v1.6.0...v1.7.0) (2026-03-01)
 
 ### Features
