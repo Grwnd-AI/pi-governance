@@ -2,35 +2,38 @@
 
 Govern what your OpenClaw agent can do — enforce tool policies, restrict MCP operations, and audit every action.
 
+## Why a Pi extension, not an OpenClaw plugin
+
+pi-governance is a **Pi extension**. That's the product. It works everywhere Pi runs — standalone terminal sessions, OpenClaw deployments, custom Pi-based agents, Telegram bots, Slack bots, CI pipelines. Every OpenClaw user gets governance automatically because OpenClaw runs on Pi.
+
+An OpenClaw plugin would limit you to one deployment topology. Pi extensions compose — governance sits alongside MCP extensions, memory extensions, custom tool extensions, all on the same event bus.
+
+The one thing a dedicated OpenClaw plugin gives you is channel-native identity — auto-detecting that a message came from `+1-555-0123` on WhatsApp or `@dtaylor` on Discord and mapping it to an RBAC role. But that's solvable within a Pi extension through environment variables, local config files, or session metadata that OpenClaw passes down to Pi.
+
+### Architecture
+
+```
+OpenClaw gateway (WhatsApp, Discord, Telegram, …)
+  └─ [optional] thin OpenClaw plugin: channel identity → env/context
+      └─ Pi embedded runner
+          └─ @grwnd/pi-governance extension  ← this is the product
+              ├─ tool_call interception (RBAC, bash gating, MCP tools)
+              ├─ prompt template selection
+              ├─ audit logging
+              └─ HITL approval flow
+```
+
+If you later need seamless channel-identity mapping, add a thin OpenClaw plugin that does nothing except resolve "WhatsApp number → RBAC role" and writes it into the session context. That plugin is a bridge, not the governance engine.
+
 ## How it works
 
-[OpenClaw](https://github.com/Grwnd-AI) uses Pi as its runtime. pi-governance is a Pi extension, so it intercepts **every tool call** OpenClaw makes — including MCP tool calls. This means you can:
+OpenClaw uses Pi as its runtime. pi-governance intercepts **every tool call** — including MCP tool calls from any connected server. This means you can:
 
 - **Allow or block specific MCP tools** per role (e.g., analysts can search but not create reports)
 - **Require approval** before sensitive operations (e.g., `create_report`, `upload_asset`)
 - **Audit everything** your OpenClaw agent does — structured JSON logs for every tool call
 - **Set invocation budgets** to cap how much an agent session can do
-- **Classify bash commands** even when OpenClaw shells out
-
-```
-┌──────────────────────────────┐
-│          OpenClaw             │
-│  (MCP tools + agent logic)   │
-└──────────┬───────────────────┘
-           │ tool_call
-           ▼
-┌──────────────────────────────┐
-│       pi-governance          │
-│  policy → budget → audit     │
-│  allow / deny / approve      │
-└──────────┬───────────────────┘
-           │
-           ▼
-┌──────────────────────────────┐
-│            Pi                │
-│    (runtime execution)       │
-└──────────────────────────────┘
-```
+- **Classify bash commands** even when the agent shells out
 
 Every MCP tool call flows through pi-governance before Pi executes it. The tool name in your policy rules matches the MCP tool name exactly.
 
@@ -39,8 +42,7 @@ Every MCP tool call flows through pi-governance before Pi executes it. The tool 
 ### 1. Install
 
 ```bash
-cd your-openclaw-project
-pnpm add @grwnd/pi-governance
+pi install npm:@grwnd/pi-governance
 ```
 
 ### 2. Create governance config
@@ -65,9 +67,60 @@ audit:
       path: ~/.pi/agent/audit.jsonl
 ```
 
-### 3. Define MCP tool policies
+### 3. Set identity
 
-The key: put MCP tool names directly in `allowed_tools` and `blocked_tools`. pi-governance matches the exact tool name from the MCP server.
+With environment variables (simplest):
+
+```bash
+export GRWND_USER=$(whoami)
+export GRWND_ROLE=report_author
+export GRWND_ORG_UNIT=engineering
+```
+
+Or with a local users file for team setups:
+
+```yaml
+# users.yaml
+users:
+  alice:
+    role: admin
+    org_unit: platform
+  bob:
+    role: report_author
+    org_unit: engineering
+  carol:
+    role: analyst
+    org_unit: research
+
+default:
+  role: analyst
+  org_unit: default
+```
+
+```yaml
+# .pi/governance.yaml
+auth:
+  provider: local
+  local:
+    users_file: ./users.yaml
+```
+
+When deploying via OpenClaw channels, set `GRWND_USER` and `GRWND_ROLE` in your OpenClaw deployment config, or map channel user IDs in the users file:
+
+```yaml
+# users.yaml — map OpenClaw channel IDs to roles
+users:
+  wa_alice_12345:
+    role: report_author
+    org_unit: engineering
+  discord_bob_67890:
+    role: analyst
+    org_unit: research
+```
+
+### 4. Define MCP tool policies
+
+Put MCP tool names directly in `allowed_tools` and `blocked_tools`. pi-governance matches the exact tool name from the MCP server.
 
 ```yaml
 # governance-rules.yaml
@@ -176,15 +229,6 @@ roles:
     blocked_paths:
       - '**/.env*'
       - '**/secrets/**'
-```
-
-### 4. Set identity and run
-
-```bash
-export GRWND_USER=$(whoami)
-export GRWND_ROLE=report_author
-export GRWND_ORG_UNIT=engineering
-# Start OpenClaw — pi-governance activates automatically
 ```
 
 ## MCP tool reference

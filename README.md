@@ -184,6 +184,46 @@ policy:
       - ./policies/tools.polar
 ```
 
+## OpenClaw
+
+pi-governance works with [OpenClaw](https://github.com/Grwnd-AI) out of the box. OpenClaw runs on Pi, so installing pi-governance as a Pi extension automatically governs every tool call your OpenClaw agent makes — including MCP tools.
+
+```
+OpenClaw gateway (WhatsApp, Discord, Telegram, …)
+  └─ Pi embedded runner
+      └─ @grwnd/pi-governance extension
+          ├─ RBAC for MCP tools (create_report, upload_asset, …)
+          ├─ bash command classification
+          ├─ audit logging (JSONL + webhook)
+          └─ HITL approval flow
+```
+
+Put MCP tool names directly in your policy rules:
+
+```yaml
+# governance-rules.yaml
+roles:
+  report_author:
+    allowed_tools:
+      - list_reports
+      - get_report
+      - create_report
+      - search_documents
+      - chat_with_report
+      - read
+      - grep
+    blocked_tools: [bash, write, edit, delete_template]
+    execution_mode: supervised
+    human_approval:
+      required_for: [create_report, upload_asset]
+      auto_approve: [list_reports, get_report, search_documents]
+    token_budget_daily: 500
+```
+
+Every MCP tool call is audited as structured JSON — see who did what, when, and whether it was approved or denied.
+
+See the full [OpenClaw integration guide](https://grwnd-ai.github.io/pi-governance/guide/openclaw) for MCP tool reference tables, channel identity mapping, and common patterns.
+
 ## Documentation
 
 Full documentation at **[grwnd-ai.github.io/pi-governance](https://grwnd-ai.github.io/pi-governance/)**.
