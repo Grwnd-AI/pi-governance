@@ -1,3 +1,9 @@
+# [1.1.0](https://github.com/Grwnd-AI/pi-governance/compare/v1.0.0...v1.1.0) (2026-03-01)
+
+### Features
+
+- add README, logo, VitePress docs site, and GitHub Pages deployment ([f17a5d5](https://github.com/Grwnd-AI/pi-governance/commit/f17a5d57d736f1d6c71b116796dbca58ec48cc15))
+
 # 1.0.0 (2026-03-01)
 
 ### Features
