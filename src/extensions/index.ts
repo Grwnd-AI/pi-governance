@@ -58,6 +58,8 @@ import { YamlPolicyEngine } from '../lib/policy/yaml-engine.js';
 import { BashClassifier } from '../lib/bash/classifier.js';
 import { AuditLogger } from '../lib/audit/logger.js';
 import { createApprovalFlow } from '../lib/hitl/approval.js';
+import { BudgetTracker } from '../lib/budget/tracker.js';
+import { ConfigWatcher } from '../lib/config/watcher.js';
 import type { ApprovalFlow } from '../lib/hitl/approval.js';
 import type { PolicyEngine, ExecutionMode } from '../lib/policy/engine.js';
 import type { ResolvedIdentity } from '../lib/identity/provider.js';
@@ -118,8 +120,10 @@ const piGovernance: ExtensionFactory = (pi) => {
   let identity: ResolvedIdentity;
   let executionMode: ExecutionMode;
   let sessionId: string;
+  let budgetTracker: BudgetTracker;
+  let configWatcher: ConfigWatcher | undefined;
 
-  const stats = { allowed: 0, denied: 0, approvals: 0, dryRun: 0 };
+  const stats = { allowed: 0, denied: 0, approvals: 0, dryRun: 0, budgetExceeded: 0 };
 
   pi.on('session_start', async (_event, ctx) => {
     sessionId = ctx.sessionId;
@@ -163,7 +167,38 @@ const piGovernance: ExtensionFactory = (pi) => {
       }
     }
 
-    // 8. Audit session start
+    // 8. Create budget tracker
+    const budget = policyEngine.getTokenBudget(identity.role);
+    budgetTracker = new BudgetTracker(budget);
+
+    // 9. Start config watcher (if loaded from a file)
+    if (loaded.source !== 'built-in') {
+      configWatcher = new ConfigWatcher(
+        loaded.source,
+        (newConfig) => {
+          config = newConfig;
+          const newRulesFile = newConfig.policy?.yaml?.rules_file ?? './governance-rules.yaml';
+          policyEngine = new YamlPolicyEngine(newRulesFile);
+          const newOverrides = policyEngine.getBashOverrides(identity.role);
+          bashClassifier = new BashClassifier(newOverrides);
+          audit.log({
+            sessionId,
+            event: 'config_reloaded',
+            userId: identity.userId,
+            role: identity.role,
+            orgUnit: identity.orgUnit,
+            metadata: { source: loaded.source },
+          });
+          ctx.ui.notify('Governance config reloaded', 'info');
+        },
+        (error) => {
+          ctx.ui.notify(`Config reload failed: ${error.message}`, 'warning');
+        },
+      );
+      configWatcher.start();
+    }
+
+    // 10. Audit session start
     await audit.log({
       sessionId,
       event: 'session_start',
@@ -173,7 +208,7 @@ const piGovernance: ExtensionFactory = (pi) => {
       metadata: { source: loaded.source, executionMode },
     });
 
-    // 9. UI feedback
+    // 11. UI feedback
     ctx.ui.setStatus('governance', `Governance: ${identity.role} (${executionMode})`);
     ctx.ui.notify(
       `Governance active — Role: ${identity.role} | Mode: ${executionMode} | Org: ${identity.orgUnit}`,
@@ -206,7 +241,22 @@ const piGovernance: ExtensionFactory = (pi) => {
       return { block: true, reason: 'Dry-run mode: tool execution blocked for observation' };
     }
 
-    // 2. Policy: evaluate tool access
+    // 2. Budget check
+    if (!budgetTracker.consume()) {
+      stats.budgetExceeded++;
+      await audit.log({
+        ...baseRecord,
+        event: 'budget_exceeded',
+        decision: 'denied',
+        reason: `Budget exhausted (${budgetTracker.used()} invocations used)`,
+      });
+      return {
+        block: true,
+        reason: `Tool invocation budget exhausted (${budgetTracker.used()} used). Session limit reached.`,
+      };
+    }
+
+    // 3. Policy: evaluate tool access
     const toolDecision = policyEngine.evaluateTool(identity.role, toolName);
     if (toolDecision === 'deny') {
       stats.denied++;
@@ -219,7 +269,7 @@ const piGovernance: ExtensionFactory = (pi) => {
       return { block: true, reason: `Policy denies ${identity.role} from using ${toolName}` };
     }
 
-    // 3. Bash-specific classification
+    // 4. Bash-specific classification
     if (toolName === 'bash') {
       const command = typeof input['command'] === 'string' ? input['command'] : '';
       const classification = bashClassifier.classify(command);
@@ -282,7 +332,7 @@ const piGovernance: ExtensionFactory = (pi) => {
       }
     }
 
-    // 4. Path boundary check for file tools
+    // 5. Path boundary check for file tools
     const path = extractPath(toolName, input);
     if (path) {
       const operation = WRITE_TOOLS.has(toolName) ? 'write' : 'read';
@@ -304,7 +354,7 @@ const piGovernance: ExtensionFactory = (pi) => {
       }
     }
 
-    // 5. HITL approval for non-bash tools if required
+    // 6. HITL approval for non-bash tools if required
     if (toolName !== 'bash' && policyEngine.requiresApproval(identity.role, toolName)) {
       if (approvalFlow) {
         stats.approvals++;
@@ -330,7 +380,7 @@ const piGovernance: ExtensionFactory = (pi) => {
       }
     }
 
-    // 6. Tool allowed
+    // 7. Tool allowed
     stats.allowed++;
     await audit.log({ ...baseRecord, event: 'tool_allowed', decision: 'allowed' });
     return undefined;
@@ -350,13 +400,18 @@ const piGovernance: ExtensionFactory = (pi) => {
   });
 
   pi.on('session_shutdown', async (_event, _ctx) => {
+    configWatcher?.stop();
     await audit.log({
       sessionId,
       event: 'session_end',
       userId: identity.userId,
       role: identity.role,
       orgUnit: identity.orgUnit,
-      metadata: { stats: { ...stats }, summary: Object.fromEntries(audit.getSummary()) },
+      metadata: {
+        stats: { ...stats },
+        budget: { used: budgetTracker.used(), remaining: budgetTracker.remaining() },
+        summary: Object.fromEntries(audit.getSummary()),
+      },
     });
     await audit.flush();
   });
@@ -368,17 +423,22 @@ const piGovernance: ExtensionFactory = (pi) => {
 
       if (subcommand === 'status') {
         const summary = audit.getSummary();
+        const budgetInfo = budgetTracker.isUnlimited()
+          ? 'unlimited'
+          : `${budgetTracker.used()} / ${budgetTracker.used() + budgetTracker.remaining()} (${budgetTracker.remaining()} remaining)`;
         const lines = [
           `Role: ${identity.role}`,
           `Org Unit: ${identity.orgUnit}`,
           `Mode: ${executionMode}`,
           `Session: ${sessionId}`,
+          `Budget: ${budgetInfo}`,
           '',
           'Session Stats:',
           `  Allowed: ${stats.allowed}`,
           `  Denied: ${stats.denied}`,
           `  Approvals: ${stats.approvals}`,
           `  Dry-run blocks: ${stats.dryRun}`,
+          `  Budget exceeded: ${stats.budgetExceeded}`,
           '',
           'Audit Events:',
           ...[...summary.entries()].map(([k, v]) => `  ${k}: ${v}`),

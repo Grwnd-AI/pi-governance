@@ -9,7 +9,9 @@ export type AuditEventType =
   | 'path_denied'
   | 'approval_requested'
   | 'approval_granted'
-  | 'approval_denied';
+  | 'approval_denied'
+  | 'budget_exceeded'
+  | 'config_reloaded';
 
 export interface AuditRecord {
   id: string;

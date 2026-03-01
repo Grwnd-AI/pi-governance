@@ -14,6 +14,9 @@ export default defineConfig({
         lines: 80,
       },
     },
+    benchmark: {
+      include: ['test/bench/**/*.bench.ts'],
+    },
   },
   resolve: {
     alias: {

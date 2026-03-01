@@ -1,0 +1,78 @@
+# governance-rules.yaml — Role-based policy definitions
+#
+# Each role defines what tools the agent can use, which paths it can access,
+# how dangerous bash commands are handled, and whether human approval is needed.
+#
+# Key concepts:
+#   - blocked_tools takes precedence over allowed_tools
+#   - blocked_paths takes precedence over allowed_paths
+#   - token_budget_daily: max tool invocations per session (-1 = unlimited)
+#   - execution_mode: autonomous | supervised | dry_run
+#   - {{project_path}} resolves to the current working directory at runtime
+
+roles:
+  # ── Analyst ──────────────────────────────────────────────────────────
+  # Read-only access. Every action requires human approval.
+  analyst:
+    allowed_tools: [read, grep, find, ls]
+    blocked_tools: [write, edit, bash]
+    prompt_template: analyst
+    execution_mode: supervised
+    human_approval:
+      required_for: [all] # Every tool needs approval
+    token_budget_daily: 100000 # Conservative budget
+    allowed_paths:
+      - '{{project_path}}/**' # Project files only
+    blocked_paths:
+      - '**/secrets/**' # No access to secrets
+      - '**/.env*' # No access to env files
+
+  # ── Project Lead ─────────────────────────────────────────────────────
+  # Full tool access, but bash and write require human approval.
+  project_lead:
+    allowed_tools: [read, write, edit, bash, grep, find, ls]
+    blocked_tools: []
+    prompt_template: project-lead
+    execution_mode: supervised
+    human_approval:
+      required_for: [bash, write] # Dangerous operations need approval
+      auto_approve: [read, edit, grep, find, ls] # Safe ops auto-approved
+    token_budget_daily: 500000
+    allowed_paths:
+      - '{{project_path}}/**'
+    blocked_paths:
+      - '**/secrets/**'
+      - '**/.env*'
+    bash_overrides:
+      additional_blocked: # Extra dangerous patterns for this role
+        - 'sudo'
+        - 'ssh'
+        - "curl.*\\|.*sh" # Prevent curl-pipe-to-shell attacks
+
+  # ── Admin ────────────────────────────────────────────────────────────
+  # Full autonomous access. No approvals, no budget limit.
+  admin:
+    allowed_tools: [all]
+    blocked_tools: []
+    prompt_template: admin
+    execution_mode: autonomous # No human-in-the-loop
+    human_approval:
+      required_for: [] # Nothing requires approval
+    token_budget_daily: -1 # Unlimited
+    allowed_paths: ['**'] # All paths
+    blocked_paths: []
+
+  # ── Auditor ──────────────────────────────────────────────────────────
+  # Dry-run mode: all tool calls are logged but none are executed.
+  # Useful for policy evaluation and compliance checks.
+  auditor:
+    allowed_tools: [read, grep, find, ls]
+    blocked_tools: [write, edit, bash]
+    prompt_template: analyst
+    execution_mode: dry_run # Blocks all execution, logs only
+    human_approval:
+      required_for: [all]
+    token_budget_daily: 50000
+    allowed_paths: ['**']
+    blocked_paths:
+      - '**/secrets/**'

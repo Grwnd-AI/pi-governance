@@ -1,0 +1,31 @@
+# users.yaml — Local identity provider configuration
+#
+# Maps OS usernames (or custom user IDs) to governance roles.
+# Used when auth.provider is set to "local" in the main config.
+#
+# Each entry specifies:
+#   - role: The governance role (must match a role in governance-rules.yaml)
+#   - org_unit: Organizational unit for path boundary resolution
+
+users:
+  alice:
+    role: admin
+    org_unit: platform
+
+  bob:
+    role: project_lead
+    org_unit: backend
+
+  carol:
+    role: analyst
+    org_unit: data-science
+
+  dave:
+    role: auditor
+    org_unit: compliance
+
+# The "default" key is used when the current OS user is not listed above.
+# If omitted, unknown users fall back to the identity chain's next provider.
+default:
+  role: analyst
+  org_unit: default

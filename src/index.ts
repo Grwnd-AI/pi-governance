@@ -28,6 +28,12 @@ export { OsoMemoryFactStore } from './lib/facts/oso-memory-store.js';
 export { type BashClassification, BashClassifier } from './lib/bash/classifier.js';
 export { SAFE_PATTERNS, DANGEROUS_PATTERNS } from './lib/bash/patterns.js';
 
+// Budget
+export { BudgetTracker } from './lib/budget/tracker.js';
+
+// Config watcher
+export { ConfigWatcher } from './lib/config/watcher.js';
+
 // Templates
 export { TemplateSelector, type TemplateSelectorConfig } from './lib/templates/selector.js';
 export { render as renderTemplate } from './lib/templates/renderer.js';

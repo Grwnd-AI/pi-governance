@@ -1,0 +1,66 @@
+# governance.yaml — Main configuration file for @grwnd/pi-governance
+#
+# Place this file at one of the following paths (checked in order):
+#   1. $GRWND_GOVERNANCE_CONFIG (environment variable)
+#   2. .pi/governance.yaml (project-local)
+#   3. ~/.pi/agent/governance.yaml (user-global)
+#
+# Environment variables can be referenced as ${VAR_NAME} and are resolved at load time.
+
+# ── Authentication / Identity ──────────────────────────────────────────
+auth:
+  provider: env # Options: env, local, oidc
+  env:
+    user_var: GRWND_USER # Env var for user ID
+    role_var: GRWND_ROLE # Env var for role
+    org_unit_var: GRWND_ORG_UNIT # Env var for organizational unit
+  # Uncomment to use file-based identity instead:
+  # provider: local
+  # local:
+  #   users_file: ./users.yaml
+
+# ── Policy Engine ──────────────────────────────────────────────────────
+policy:
+  engine: yaml # Options: yaml, oso
+  yaml:
+    rules_file: ./governance-rules.yaml
+  # Uncomment to use Oso/Polar policy engine:
+  # engine: oso
+  # oso:
+  #   polar_files:
+  #     - ./policies/base.polar
+  #     - ./policies/tools.polar
+
+# ── Prompt Templates ───────────────────────────────────────────────────
+templates:
+  directory: ./templates/
+  default: project-lead # Fallback template when role has none
+
+# ── Human-in-the-Loop ─────────────────────────────────────────────────
+hitl:
+  default_mode: supervised # Options: autonomous, supervised, dry_run
+  approval_channel: cli # Options: cli, webhook
+  timeout_seconds: 300 # 5-minute approval timeout
+  # Uncomment for webhook-based approvals:
+  # approval_channel: webhook
+  # webhook:
+  #   url: https://approvals.example.com/api/v1/approve
+
+# ── Audit Logging ─────────────────────────────────────────────────────
+audit:
+  sinks:
+    - type: jsonl
+      path: ~/.pi/agent/audit.jsonl # Local audit trail
+    # Uncomment to add a webhook sink:
+    # - type: webhook
+    #   url: https://audit.example.com/api/v1/events
+
+# ── Org-Unit Overrides (optional) ─────────────────────────────────────
+# Override HITL or policy settings for specific organizational units.
+# org_units:
+#   compliance:
+#     hitl:
+#       default_mode: dry_run
+#   platform:
+#     hitl:
+#       timeout_seconds: 600
