@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/Grwnd-AI/pi-governance/compare/v1.4.1...v1.4.2) (2026-03-01)
+
+### Bug Fixes
+
+- retrigger release with updated npm token ([4afd522](https://github.com/Grwnd-AI/pi-governance/commit/4afd5222d7a768ffb62556e1b6d53d1216c96e9f))
+
 ## [1.4.1](https://github.com/Grwnd-AI/pi-governance/compare/v1.4.0...v1.4.1) (2026-03-01)
 
 ### Bug Fixes
