@@ -30,3 +30,49 @@ features:
   - title: Zero-Config Start
     details: "Install and go. One command gives you bash blocking, DLP, supervised mode, and audit logging. Customize when you're ready with YAML or the interactive wizard."
 ---
+
+<style>
+.install-section {
+  max-width: 688px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+}
+.install-section h2 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 24px;
+}
+.install-block {
+  margin-bottom: 20px;
+}
+.install-block p {
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+</style>
+
+<div class="install-section">
+
+## Install
+
+<div class="install-block">
+
+**Pi extension**
+
+```bash
+pi install npm:@grwnd/pi-governance
+```
+
+</div>
+
+<div class="install-block">
+
+**OpenClaw plugin**
+
+```bash
+openclaw plugins install @grwnd/openclaw-governance
+```
+
+</div>
+
+</div>
