@@ -1,3 +1,9 @@
+## [1.9.1](https://github.com/Grwnd-AI/pi-governance/compare/v1.9.0...v1.9.1) (2026-03-02)
+
+### Bug Fixes
+
+- **openclaw:** add top-level register export for plugin loader ([c5382c1](https://github.com/Grwnd-AI/pi-governance/commit/c5382c1e984753d9952210c3accf85aa1fa4c390))
+
 # [1.9.0](https://github.com/Grwnd-AI/pi-governance/compare/v1.8.0...v1.9.0) (2026-03-02)
 
 ### Features
