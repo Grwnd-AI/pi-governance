@@ -43,9 +43,9 @@ roles:
 ```
 
 ```bash
-export PI_RBAC_USER=$(whoami)
-export PI_RBAC_ROLE=developer
-export PI_RBAC_ORG_UNIT=default
+export PI_GOV_USER=$(whoami)
+export PI_GOV_ROLE=developer
+export PI_GOV_ORG_UNIT=default
 pi
 ```
 
@@ -125,7 +125,7 @@ roles:
 ```
 
 ```bash
-export PI_RBAC_ROLE=auditor
+export PI_GOV_ROLE=auditor
 pi
 ```
 
@@ -156,7 +156,7 @@ roles:
 ```
 
 ```bash
-export PI_RBAC_ROLE=researcher
+export PI_GOV_ROLE=researcher
 pi
 ```
 

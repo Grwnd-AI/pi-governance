@@ -57,7 +57,7 @@ Create `.pi/governance.yaml` and `governance-rules.yaml` — see the [Configurat
 ### Set identity
 
 ```bash
-export PI_RBAC_ROLE=project_lead  # analyst | project_lead | admin | auditor
+export PI_GOV_ROLE=project_lead  # analyst | project_lead | admin | auditor
 pi
 /governance status
 ```

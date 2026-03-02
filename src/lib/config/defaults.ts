@@ -4,9 +4,9 @@ export const DEFAULTS: GovernanceConfig = {
   auth: {
     provider: 'env',
     env: {
-      user_var: 'PI_RBAC_USER',
-      role_var: 'PI_RBAC_ROLE',
-      org_unit_var: 'PI_RBAC_ORG_UNIT',
+      user_var: 'PI_GOV_USER',
+      role_var: 'PI_GOV_ROLE',
+      org_unit_var: 'PI_GOV_ORG_UNIT',
     },
   },
   policy: {

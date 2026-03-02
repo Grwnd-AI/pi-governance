@@ -6,13 +6,13 @@ describe('EnvIdentityProvider', () => {
 
   beforeEach(() => {
     // Save current env values
-    savedEnv.PI_RBAC_USER = process.env.PI_RBAC_USER;
-    savedEnv.PI_RBAC_ROLE = process.env.PI_RBAC_ROLE;
-    savedEnv.PI_RBAC_ORG_UNIT = process.env.PI_RBAC_ORG_UNIT;
+    savedEnv.PI_GOV_USER = process.env.PI_GOV_USER;
+    savedEnv.PI_GOV_ROLE = process.env.PI_GOV_ROLE;
+    savedEnv.PI_GOV_ORG_UNIT = process.env.PI_GOV_ORG_UNIT;
     // Clear them
-    delete process.env.PI_RBAC_USER;
-    delete process.env.PI_RBAC_ROLE;
-    delete process.env.PI_RBAC_ORG_UNIT;
+    delete process.env.PI_GOV_USER;
+    delete process.env.PI_GOV_ROLE;
+    delete process.env.PI_GOV_ORG_UNIT;
   });
 
   afterEach(() => {
@@ -27,9 +27,9 @@ describe('EnvIdentityProvider', () => {
   });
 
   it('resolves identity from environment variables', async () => {
-    process.env.PI_RBAC_USER = 'alice';
-    process.env.PI_RBAC_ROLE = 'admin';
-    process.env.PI_RBAC_ORG_UNIT = 'platform';
+    process.env.PI_GOV_USER = 'alice';
+    process.env.PI_GOV_ROLE = 'admin';
+    process.env.PI_GOV_ORG_UNIT = 'platform';
 
     const provider = new EnvIdentityProvider();
     const identity = await provider.resolve();
@@ -42,9 +42,9 @@ describe('EnvIdentityProvider', () => {
     });
   });
 
-  it('defaults orgUnit to "default" when PI_RBAC_ORG_UNIT is not set', async () => {
-    process.env.PI_RBAC_USER = 'bob';
-    process.env.PI_RBAC_ROLE = 'developer';
+  it('defaults orgUnit to "default" when PI_GOV_ORG_UNIT is not set', async () => {
+    process.env.PI_GOV_USER = 'bob';
+    process.env.PI_GOV_ROLE = 'developer';
 
     const provider = new EnvIdentityProvider();
     const identity = await provider.resolve();
@@ -60,8 +60,8 @@ describe('EnvIdentityProvider', () => {
     expect(identity).toBeNull();
   });
 
-  it('returns null when only PI_RBAC_USER is set (partial vars)', async () => {
-    process.env.PI_RBAC_USER = 'alice';
+  it('returns null when only PI_GOV_USER is set (partial vars)', async () => {
+    process.env.PI_GOV_USER = 'alice';
 
     const provider = new EnvIdentityProvider();
     const identity = await provider.resolve();

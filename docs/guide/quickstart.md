@@ -24,7 +24,7 @@ Verify:
 | ------------------- | ------------------------------------------------------- |
 | Bash classification | Active — dangerous commands blocked                     |
 | DLP                 | Active — secrets blocked on input, PII masked on output |
-| Role                | `analyst` (read-only) unless `PI_RBAC_ROLE` is set      |
+| Role                | `analyst` (read-only) unless `PI_GOV_ROLE` is set       |
 | Audit               | JSONL to `~/.pi/agent/audit.jsonl`                      |
 
 ## Customize
@@ -59,9 +59,9 @@ audit:
 ### Set your identity
 
 ```bash
-export PI_RBAC_USER=alice
-export PI_RBAC_ROLE=project_lead
-export PI_RBAC_ORG_UNIT=default
+export PI_GOV_USER=alice
+export PI_GOV_ROLE=project_lead
+export PI_GOV_ORG_UNIT=default
 pi
 ```
 

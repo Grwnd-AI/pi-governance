@@ -1,9 +1,9 @@
 import { Type, type Static } from '@sinclair/typebox';
 
 const AuthEnvConfig = Type.Object({
-  user_var: Type.String({ default: 'PI_RBAC_USER' }),
-  role_var: Type.String({ default: 'PI_RBAC_ROLE' }),
-  org_unit_var: Type.String({ default: 'PI_RBAC_ORG_UNIT' }),
+  user_var: Type.String({ default: 'PI_GOV_USER' }),
+  role_var: Type.String({ default: 'PI_GOV_ROLE' }),
+  org_unit_var: Type.String({ default: 'PI_GOV_ORG_UNIT' }),
 });
 
 const AuthLocalConfig = Type.Object({

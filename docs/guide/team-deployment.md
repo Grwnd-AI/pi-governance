@@ -28,9 +28,9 @@ my-project/
 Each teammate sets their identity before starting Pi:
 
 ```bash
-export PI_RBAC_USER=$(whoami)
-export PI_RBAC_ROLE=project_lead
-export PI_RBAC_ORG_UNIT=backend
+export PI_GOV_USER=$(whoami)
+export PI_GOV_ROLE=project_lead
+export PI_GOV_ORG_UNIT=backend
 ```
 
 This works well when roles are managed externally (e.g., CI/CD pipelines, team scripts).
