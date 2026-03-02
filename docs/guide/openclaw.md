@@ -125,7 +125,7 @@ Put MCP tool names directly in `allowed_tools` and `blocked_tools`. pi-governanc
 ```yaml
 # governance-rules.yaml
 roles:
-  # Full access — can create reports, upload files, manage templates
+  # Full access — unrestricted tool use
   admin:
     allowed_tools: [all]
     blocked_tools: []
@@ -139,46 +139,33 @@ roles:
       - '**/.env*'
       - '**/secrets/**'
 
-  # Can generate and edit reports, but not delete or manage templates
-  report_author:
+  # Can use read/write MCP tools, but not destructive ones
+  project_lead:
     allowed_tools:
-      - list_reports
-      - get_report
-      - create_report
-      - get_report_progress
-      - list_report_sections
-      - get_section_content
-      - update_section_content
-      - search_report_sections
-      - search_documents
-      - browse_documents
-      - count_documents
-      - chat_with_report
-      - list_chat_threads
-      - generate_asset_key
-      - upload_asset
-      - list_uploaded_assets
-      - list_report_assets
-      - get_report_attributes
+      # Built-in Pi tools
       - read
       - grep
       - find
       - ls
+      # MCP tools — list the exact names from your MCP servers
+      - search_documents
+      - read_file
+      - write_file
+      - query
     blocked_tools:
       - bash
-      - write
-      - edit
-      - delete_template
+      - delete_file
+      - drop_table
     prompt_template: project_lead
     execution_mode: supervised
     human_approval:
       required_for:
-        - create_report
-        - upload_asset
+        - write_file
+        - execute
       auto_approve:
-        - list_reports
-        - get_report
         - search_documents
+        - read_file
+        - query
         - read
     token_budget_daily: 500
     allowed_paths:
@@ -187,37 +174,25 @@ roles:
       - '**/.env*'
       - '**/secrets/**'
 
-  # Read-only — can search and view reports but not create or modify
+  # Read-only — can search and view but not create or modify
   analyst:
     allowed_tools:
-      - list_reports
-      - get_report
-      - get_report_progress
-      - list_report_sections
-      - get_section_content
-      - search_report_sections
-      - search_documents
-      - browse_documents
-      - count_documents
-      - chat_with_report
-      - list_chat_threads
-      - get_report_attributes
-      - list_report_assets
-      - get_template
-      - list_templates
       - read
       - grep
       - find
       - ls
+      - search_documents
+      - read_file
+      - query
+      - list_directory
     blocked_tools:
       - bash
       - write
       - edit
-      - create_report
-      - upload_asset
-      - update_section_content
-      - create_template
-      - delete_template
+      - write_file
+      - delete_file
+      - execute
+      - drop_table
     prompt_template: analyst
     execution_mode: supervised
     human_approval:
@@ -233,64 +208,77 @@ roles:
 
 ## MCP tool reference
 
-These are the MCP tool names you can use in `allowed_tools` and `blocked_tools`. Use the exact names below.
+pi-governance intercepts **every** MCP tool call, regardless of which MCP server provides it. Use the exact MCP tool name in `allowed_tools` and `blocked_tools`.
 
-### Reports
+### Discovering tool names
 
-| Tool                    | Operation                | Risk  |
-| ----------------------- | ------------------------ | ----- |
-| `list_reports`          | List all reports         | Read  |
-| `get_report`            | Get report details       | Read  |
-| `create_report`         | Create a new report      | Write |
-| `get_report_progress`   | Check processing status  | Read  |
-| `get_report_attributes` | Get extracted attributes | Read  |
+MCP tool names are defined by each MCP server. To find the names available in your setup:
 
-### Report sections
+```bash
+# List tools from a running MCP server
+pi mcp list-tools
 
-| Tool                     | Operation                  | Risk  |
-| ------------------------ | -------------------------- | ----- |
-| `list_report_sections`   | List section metadata      | Read  |
-| `get_section_content`    | Read section content       | Read  |
-| `update_section_content` | Edit section content       | Write |
-| `search_report_sections` | Search sections by keyword | Read  |
+# Or check the server's documentation / manifest
+```
 
-### Documents & search
+The tool name in your policy must match the MCP tool name exactly — e.g., if the server exposes `search_documents`, use `search_documents` in your rules.
 
-| Tool               | Operation                   | Risk |
-| ------------------ | --------------------------- | ---- |
-| `search_documents` | Semantic search across docs | Read |
-| `browse_documents` | Paginate through doc chunks | Read |
-| `count_documents`  | Count indexed chunks        | Read |
+### Example: filesystem MCP server
 
-### Chat
+| Tool             | Operation        | Risk        |
+| ---------------- | ---------------- | ----------- |
+| `read_file`      | Read a file      | Read        |
+| `write_file`     | Write a file     | Write       |
+| `list_directory` | List a directory | Read        |
+| `delete_file`    | Delete a file    | Destructive |
 
-| Tool                | Operation           | Risk |
-| ------------------- | ------------------- | ---- |
-| `chat_with_report`  | Chat about a report | Read |
-| `list_chat_threads` | List chat threads   | Read |
+```yaml
+# governance-rules.yaml
+roles:
+  analyst:
+    allowed_tools: [read_file, list_directory]
+    blocked_tools: [write_file, delete_file]
+```
 
-### Assets
+### Example: database MCP server
 
-| Tool                   | Operation               | Risk  |
-| ---------------------- | ----------------------- | ----- |
-| `generate_asset_key`   | Generate upload key     | Write |
-| `upload_asset`         | Upload a file           | Write |
-| `list_uploaded_assets` | List uploaded files     | Read  |
-| `list_report_assets`   | List report attachments | Read  |
-| `download_asset`       | Download an asset       | Read  |
+| Tool          | Operation      | Risk        |
+| ------------- | -------------- | ----------- |
+| `query`       | Run a query    | Read        |
+| `execute`     | Run a mutation | Write       |
+| `list_tables` | List tables    | Read        |
+| `drop_table`  | Drop a table   | Destructive |
 
-### Templates
+```yaml
+roles:
+  analyst:
+    allowed_tools: [query, list_tables]
+    blocked_tools: [execute, drop_table]
+```
 
-| Tool                        | Operation                | Risk        |
-| --------------------------- | ------------------------ | ----------- |
-| `list_templates`            | List all templates       | Read        |
-| `get_template`              | Get template details     | Read        |
-| `create_template`           | Create a blank template  | Write       |
-| `update_template`           | Update template metadata | Write       |
-| `update_template_structure` | Modify template sections | Write       |
-| `extract_template`          | AI-extract from document | Write       |
-| `duplicate_template`        | Copy a template          | Write       |
-| `delete_template`           | Delete a template        | Destructive |
+### Mixing MCP tools with built-in tools
+
+MCP tool names and built-in Pi tool names (`bash`, `read`, `write`, `edit`, `grep`, `find`, `ls`) share the same policy namespace. List them together:
+
+```yaml
+roles:
+  report_author:
+    allowed_tools:
+      # Built-in Pi tools
+      - read
+      - grep
+      - find
+      - ls
+      # MCP tools from your connected servers
+      - search_documents
+      - get_report
+      - create_report
+    blocked_tools:
+      - bash
+      - write
+      - edit
+      - drop_table
+```
 
 ## Audit
 
@@ -299,11 +287,11 @@ Every MCP tool call is logged as structured JSON. This gives you a complete reco
 ### Example audit output
 
 ```json
-{"timestamp":"2026-03-01T10:00:01Z","sessionId":"abc-123","event":"tool_allowed","userId":"alice","role":"report_author","orgUnit":"engineering","tool":"list_reports","input":{}}
-{"timestamp":"2026-03-01T10:00:02Z","sessionId":"abc-123","event":"tool_allowed","userId":"alice","role":"report_author","orgUnit":"engineering","tool":"get_report","input":{}}
-{"timestamp":"2026-03-01T10:00:05Z","sessionId":"abc-123","event":"approval_requested","userId":"alice","role":"report_author","orgUnit":"engineering","tool":"create_report","input":{}}
-{"timestamp":"2026-03-01T10:00:08Z","sessionId":"abc-123","event":"approval_granted","userId":"alice","role":"report_author","orgUnit":"engineering","tool":"create_report","input":{},"duration":3000}
-{"timestamp":"2026-03-01T10:00:12Z","sessionId":"abc-123","event":"tool_denied","userId":"alice","role":"report_author","orgUnit":"engineering","tool":"delete_template","decision":"denied","reason":"Policy denies report_author from using delete_template"}
+{"timestamp":"2026-03-01T10:00:01Z","sessionId":"abc-123","event":"tool_allowed","userId":"alice","role":"project_lead","orgUnit":"engineering","tool":"search_documents","input":{}}
+{"timestamp":"2026-03-01T10:00:02Z","sessionId":"abc-123","event":"tool_allowed","userId":"alice","role":"project_lead","orgUnit":"engineering","tool":"read_file","input":{}}
+{"timestamp":"2026-03-01T10:00:05Z","sessionId":"abc-123","event":"approval_requested","userId":"alice","role":"project_lead","orgUnit":"engineering","tool":"write_file","input":{}}
+{"timestamp":"2026-03-01T10:00:08Z","sessionId":"abc-123","event":"approval_granted","userId":"alice","role":"project_lead","orgUnit":"engineering","tool":"write_file","input":{},"duration":3000}
+{"timestamp":"2026-03-01T10:00:12Z","sessionId":"abc-123","event":"tool_denied","userId":"alice","role":"project_lead","orgUnit":"engineering","tool":"drop_table","decision":"denied","reason":"Policy denies project_lead from using drop_table"}
 ```
 
 ### Ship audit to a central endpoint
@@ -323,8 +311,8 @@ audit:
 ### Query audit logs
 
 ```bash
-# What did the agent create today?
-cat ~/.pi/agent/audit.jsonl | jq 'select(.tool == "create_report")'
+# What write operations happened today?
+cat ~/.pi/agent/audit.jsonl | jq 'select(.tool == "write_file")'
 
 # All denied operations
 cat ~/.pi/agent/audit.jsonl | jq 'select(.decision == "denied")'
@@ -335,38 +323,37 @@ cat ~/.pi/agent/audit.jsonl | jq 'select(.event == "session_end") | .metadata.bu
 
 ## Common patterns
 
-### Approval before report creation
+### Approval before write operations
 
-Require human sign-off before the agent creates reports or uploads files, but let it search and read freely:
+Require human sign-off before the agent performs writes, but let it search and read freely:
 
 ```yaml
 human_approval:
   required_for:
-    - create_report
-    - upload_asset
-    - update_section_content
+    - write_file
+    - execute
+    - delete_file
   auto_approve:
-    - list_reports
-    - get_report
+    - read_file
+    - query
     - search_documents
-    - chat_with_report
+    - list_directory
 ```
 
 ### Budget-limited research session
 
-Let the agent explore reports but cap the session:
+Let the agent explore data but cap the session:
 
 ```yaml
 researcher:
   allowed_tools:
-    - list_reports
-    - get_report
     - search_documents
-    - browse_documents
-    - chat_with_report
+    - read_file
+    - list_directory
+    - query
     - read
     - grep
-  blocked_tools: [bash, write, edit, create_report, upload_asset]
+  blocked_tools: [bash, write, edit, write_file, delete_file, execute]
   execution_mode: supervised
   token_budget_daily: 100
 ```
