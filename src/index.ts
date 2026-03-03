@@ -63,6 +63,10 @@ export { type AuditRecord, type AuditEventType } from './lib/audit/schema.js';
 export { AuditLogger } from './lib/audit/logger.js';
 export { JsonlAuditSink } from './lib/audit/sinks/jsonl.js';
 export { WebhookAuditSink } from './lib/audit/sinks/webhook.js';
+export { SplunkAuditSink } from './lib/audit/sinks/splunk.js';
+export { SentryAuditSink } from './lib/audit/sinks/sentry.js';
+export { PaloAltoStrataAuditSink } from './lib/audit/sinks/palo-alto-strata.js';
+export { PaloAltoXsiamAuditSink } from './lib/audit/sinks/palo-alto-xsiam.js';
 
 // HITL
 export {

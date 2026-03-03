@@ -70,7 +70,39 @@ const PostgresSinkConfig = Type.Object({
   connection: Type.String(),
 });
 
-const AuditSinkConfig = Type.Union([JsonlSinkConfig, WebhookSinkConfig, PostgresSinkConfig]);
+const SplunkSinkConfig = Type.Object({
+  type: Type.Literal('splunk'),
+  url: Type.String(),
+  token: Type.String(),
+});
+
+const SentrySinkConfig = Type.Object({
+  type: Type.Literal('sentry'),
+  dsn: Type.String(),
+});
+
+const PaloAltoStrataSinkConfig = Type.Object({
+  type: Type.Literal('palo_alto_strata'),
+  url: Type.String(),
+  token: Type.String(),
+});
+
+const PaloAltoXsiamSinkConfig = Type.Object({
+  type: Type.Literal('palo_alto_xsiam'),
+  url: Type.String(),
+  api_key: Type.String(),
+  api_key_id: Type.String(),
+});
+
+const AuditSinkConfig = Type.Union([
+  JsonlSinkConfig,
+  WebhookSinkConfig,
+  PostgresSinkConfig,
+  SplunkSinkConfig,
+  SentrySinkConfig,
+  PaloAltoStrataSinkConfig,
+  PaloAltoXsiamSinkConfig,
+]);
 
 const AuditConfig = Type.Object({
   sinks: Type.Array(AuditSinkConfig, {
